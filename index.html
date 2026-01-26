@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job & Inventory Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            overflow-x: auto;
+            position: sticky;
+            top: 3.5rem;
+            z-index: 99;
+        }
+
+        .nav-tabs button {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: white;
+            color: #666;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+
+        .nav-tabs button.active {
+            color: #1e3a8a;
+            border-bottom-color: #1e3a8a;
+            background: #f9fafb;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .job-location-highlight {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        .log-section {
+            background: #f0f4ff;
+            border: 1px solid #dbeafe;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+        }
+
+        .log-header {
+            padding: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            color: #1e3a8a;
+            user-select: none;
+        }
+
+        .log-header:hover {
+            background: #e0e7ff;
+        }
+
+        .log-content {
+            display: none;
+            padding: 0.75rem;
+            border-top: 1px solid #dbeafe;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-content.show {
+            display: block;
+        }
+
+        .log-entry {
+            padding: 0.75rem;
+            background: white;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            border-left: 3px solid #1e3a8a;
+        }
+
+        .log-entry-time {
+            font-weight: 500;
+            color: #1e3a8a;
+        }
+
+        .log-entry-user {
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .log-entry-details {
+            color: #555;
+            margin-top: 0.25rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .nav-tabs button.active {
+            color: #1e3a8a;
+            border-bottom-color: #1e3a8a;
+            background: #f9fafb;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .job-location-highlight {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        .log-section {
+            background: #f0f4ff;
+            border: 1px solid #dbeafe;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+        }
+
+        .log-header {
+            padding: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            color: #1e3a8a;
+            user-select: none;
+        }
+
+        .log-header:hover {
+            background: #e0e7ff;
+        }
+
+        .log-content {
+            display: none;
+            padding: 0.75rem;
+            border-top: 1px solid #dbeafe;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-content.show {
+            display: block;
+        }
+
+        .log-entry {
+            padding: 0.75rem;
+            background: white;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            border-left: 3px solid #1e3a8a;
+        }
+
+        .log-entry-time {
+            font-weight: 500;
+            color: #1e3a8a;
+        }
+
+        .log-entry-user {
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .log-entry-details {
+            color: #555;
+            margin-top: 0.25rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .search-box {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .search-suggestions.show {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: #f0f4ff;
+        }
+
+        .suggestion-item .match-type {
+            font-size: 0.8rem;
+            color: #999;
+            margin-left: 0.5rem;
+        }
+
+        .job-card, .inventory-item {
+            background: white;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .job-card:active, .inventory-item:active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .job-card h3, .inventory-item h3 {
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .job-meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .status-quote {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-scheduled {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-inprogress {
+            background: #fecaca;
+            color: #7f1d1d;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .photo-upload {
+            margin-bottom: 1rem;
+        }
+
+        .photo-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-item .delete-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 0.75rem;
+            background: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .file-input-label:active {
+            background: #e5e7eb;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-primary:active {
+            background: #1e40af;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #333;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-secondary:active {
+            background: #d1d5db;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger:active {
+            background: #b91c1c;
+        }
+
+        .detail-view {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .detail-header {
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-header h2 {
+            color: #1e3a8a;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-section h3 {
+            color: #374151;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-row .label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .detail-row .value {
+            color: #333;
+            text-align: right;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #999;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h2 {
+            color: #374151;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            color: #1e3a8a;
+            font-size: 1.25rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        @media (min-width: 768px) {
+            .content {
+                padding: 2rem;
+            }
+
+            .job-card, .inventory-item {
+                padding: 1.5rem;
+            }
+
+            .detail-view {
+                padding: 2rem;
+            }
+
+            .btn {
+                width: auto;
+                display: inline-block;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: auto;
+                margin-right: 0.5rem;
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Job & Inventory Tracker</h1>
+            <div class="user-info" id="userInfo">Not logged in</div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-btn active" data-page="login">Login</button>
+            <button class="nav-btn" data-page="snapshot">Snapshot</button>
+            <button class="nav-btn" data-page="jobs">Jobs</button>
+            <button class="nav-btn" data-page="customers">Customers</button>
+            <button class="nav-btn" data-page="technicians">Technicians</button>
+            <button class="nav-btn" data-page="completed">Completed</button>
+            <button class="nav-btn" data-page="new-job">New Job</button>
+            <button class="nav-btn" data-page="job-detail" style="display: none;">Job Detail</button>
+        </div>
+
+        <div class="content">
+            <!-- Login Page -->
+            <div id="login" class="page active">
+                <div style="padding: 2rem 1rem;">
+                    <h2 style="color: #1e3a8a; margin-bottom: 1.5rem; text-align: center;">Login</h2>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="loginName" placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="loginRole">
+                            <option>Technician</option>
+                            <option>Bookkeeper</option>
+                            <option>Manager</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="login()">Login</button>
+                </div>
+            </div>
+
+            <!-- Jobs Page -->
+            <div id="jobs" class="page">
+                <div class="search-box">
+                    <input type="text" id="jobSearch" placeholder="Search by name, address, or phone...">
+                    <div class="search-suggestions" id="jobSuggestions"></div>
+                </div>
+                <div id="jobsList"></div>
+            </div>
+
+            <!-- New Job Page -->
+            <div id="new-job" class="page">
+                <h2 style="color: #1e3a8a; margin-bottom: 1.5rem;">Create New Job</h2>
+                <form id="newJobForm" onsubmit="saveJob(event)">
+                    <div class="form-group">
+                        <label>Link to Existing Customer (Optional)</label>
+                        <select id="jobCustomerSelect" onchange="prefillCustomerData()">
+                            <option value="">Create new customer profile</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Customer Name *</label>
+                        <input type="text" id="jobCustomerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address *</label>
+                        <input type="text" id="jobAddress" required>
+                    </div>
+                    <div class="form-group" id="jobLocationGroup" style="display: none;">
+                        <label style="font-weight: 700; color: #dc2626;">📍 Job Location (if different from home address)</label>
+                        <input type="text" id="jobLocation" placeholder="Enter job site address if different from home">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number *</label>
+                        <input type="tel" id="jobPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="jobEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>Job Description *</label>
+                        <textarea id="jobDescription" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="jobStatus">
+                            <option value="quote">Quote</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="inprogress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Scheduled Date & Time</label>
+                        <input type="date" id="jobDate">
+                        <input type="time" id="jobTime" style="margin-top: 0.5rem;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Assigned Technician</label>
+                        <select id="jobTechnician">
+                            <option value="">Select technician...</option>
+                        </select>
+                    </div>
+
+                    <div class="photo-upload">
+                        <label>Customer Photos</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="jobPhotos" multiple accept="image/*">
+                            <label class="file-input-label" for="jobPhotos">📸 Tap to upload photos</label>
+                        </div>
+                        <div class="photo-preview" id="jobPhotoPreview"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Create Job</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearJobForm()">Clear</button>
+                </form>
+            </div>
+
+            <!-- Job Detail Page -->
+            <div id="job-detail" class="page">
+                <button class="btn btn-secondary" onclick="goBackToJobs()" style="margin-bottom: 1rem; width: 100%;">← Back to Jobs</button>
+                <div id="jobDetailContent"></div>
+            </div>
+
+            <!-- Job Work Log Modal -->
+            <div id="jobWorkLogModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Update Job Progress</h2>
+                        <button class="close-btn" onclick="closeJobWorkLogModal()">&times;</button>
+                    </div>
+                    <form id="jobWorkLogForm" onsubmit="saveJobWorkLog(event)">
+                        <input type="hidden" id="workLogJobId">
+                        <div class="form-group">
+                            <label>Materials Used</label>
+                            <textarea id="workLogMaterials" placeholder="List materials used or any parts installed..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Time Spent (hours)</label>
+                            <input type="number" id="workLogTime" step="0.5" min="0" placeholder="e.g., 2.5">
+                        </div>
+                        <div class="form-group">
+                            <label>Work Notes</label>
+                            <textarea id="workLogNotes" placeholder="Describe what was done, any issues encountered..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Work Photos</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" id="workLogPhotos" multiple accept="image/*">
+                                <label class="file-input-label" for="workLogPhotos">📸 Tap to upload work photos</label>
+                            </div>
+                            <div class="photo-preview" id="workLogPhotoPreview"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Follow-up Required?</label>
+                            <select id="workLogFollowUp">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="followUpByGroup" style="display: none;">
+                            <label>Follow-up By (Name/Role)</label>
+                            <input type="text" id="workLogFollowUpBy" placeholder="e.g., John - Technician">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Work Log</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeJobWorkLogModal()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Snapshot Page -->
+            <div id="snapshot" class="page">
+                <h2 style="color: #1e3a8a; margin-bottom: 1.5rem;">📸 Snapshot</h2>
+                <h3 style="color: #374151; margin-bottom: 1rem;">Today's Jobs</h3>
+                <div id="snapshotTodayList"></div>
+                <h3 style="color: #374151; margin-top: 2rem; margin-bottom: 1rem;">Next 7 Days</h3>
+                <div id="snapshot7DaysList"></div>
+            </div>
+
+            <!-- Completed Jobs Page -->
+            <div id="completed" class="page">
+                <h2 style="color: #1e3a8a; margin-bottom: 1rem;">Recently Completed (Last 14 Days)</h2>
+                <div id="completedJobsList"></div>
+            </div>
+
+            <!-- Customers Page -->
+            <div id="customers" class="page">
+                <div style="margin-bottom: 1.5rem;">
+                    <button class="btn btn-primary" onclick="switchToNewCustomer()" style="width: 100%;">+ New Customer</button>
+                </div>
+                <div id="customersList"></div>
+            </div>
+
+            <!-- Technicians Page -->
+            <div id="technicians" class="page">
+                <div style="margin-bottom: 1.5rem;">
+                    <button class="btn btn-primary" onclick="switchToNewTechnician()" style="width: 100%;">+ Add Technician</button>
+                </div>
+                <div id="techniciansList"></div>
+            </div>
+
+            <!-- New Customer Modal -->
+            <div id="newCustomerModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Add New Customer</h2>
+                        <button class="close-btn" onclick="closeNewCustomerModal()">&times;</button>
+                    </div>
+                    <form id="newCustomerForm" onsubmit="saveCustomer(event)">
+                        <div class="form-group">
+                            <label>Customer Name *</label>
+                            <input type="text" id="custName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Address *</label>
+                            <input type="text" id="custAddress" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" id="custPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="custEmail">
+                        </div>
+                        <div class="form-group">
+                            <label>Access Notes (Pin codes, key locations, etc.)</label>
+                            <textarea id="custNotes" placeholder="Add any access instructions, pin codes, key locations..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Customer Photos</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" id="custPhotos" multiple accept="image/*">
+                                <label class="file-input-label" for="custPhotos">📸 Tap to upload photos</label>
+                            </div>
+                            <div class="photo-preview" id="custPhotoPreview"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Customer</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeNewCustomerModal()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- New Technician Modal -->
+            <div id="newTechnicianModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Add New Technician</h2>
+                        <button class="close-btn" onclick="closeNewTechnicianModal()">&times;</button>
+                    </div>
+                    <form id="newTechnicianForm" onsubmit="saveTechnician(event)">
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="techName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" id="techPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="techEmail">
+                        </div>
+                        <div class="form-group">
+                            <label>Emergency Contact Name</label>
+                            <input type="text" id="techEmergencyName">
+                        </div>
+                        <div class="form-group">
+                            <label>Emergency Contact Phone</label>
+                            <input type="tel" id="techEmergencyPhone">
+                        </div>
+                        <div class="form-group">
+                            <label>Specialization/Skills</label>
+                            <textarea id="techSpecialization" placeholder="e.g., Domestic Wiring, Industrial, Solar Installation..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Technician</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeNewTechnicianModal()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit Job Modal -->
+            <div id="editJobModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Edit Job</h2>
+                        <button class="close-btn" onclick="closeEditJobModal()">&times;</button>
+                    </div>
+                    <form id="editJobForm" onsubmit="updateJob(event)">
+                        <input type="hidden" id="editJobId">
+                        <div class="form-group">
+                            <label>Customer Profile</label>
+                            <select id="editJobCustomerId">
+                                <option value="">No linked customer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Customer Name *</label>
+                            <input type="text" id="editJobCustomerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Address *</label>
+                            <input type="text" id="editJobAddress" required>
+                        </div>
+                        <div class="form-group" id="editJobLocationGroup" style="display: none;">
+                            <label style="font-weight: 700; color: #dc2626;">📍 Job Location (if different from home address)</label>
+                            <input type="text" id="editJobLocation" placeholder="Enter job site address if different from home">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" id="editJobPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="editJobEmail">
+                        </div>
+                        <div class="form-group">
+                            <label>Job Description *</label>
+                            <textarea id="editJobDescription" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="editJobStatus">
+                                <option value="quote">Quote</option>
+                                <option value="scheduled">Scheduled</option>
+                                <option value="inprogress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>                    <div class="form-group">
+                        <label>Scheduled Date & Time</label>
+                        <input type="date" id="editJobDate">
+                        <input type="time" id="editJobTime" style="margin-top: 0.5rem;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Assigned Technician</label>
+                        <select id="editJobTechnician">
+                            <option value="">Select technician...</option>
+                        </select>
+                    </div>
+
+                    <div class="photo-upload">
+                            <label>Job Photos</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" id="editJobPhotos" multiple accept="image/*">
+                                <label class="file-input-label" for="editJobPhotos">📸 Tap to upload photos</label>
+                            </div>
+                            <div class="photo-preview" id="editJobPhotoPreview"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Job</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeEditJobModal()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let currentUser = null;
+        let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+        let customers = JSON.parse(localStorage.getItem('customers')) || [];
+        let technicians = JSON.parse(localStorage.getItem('technicians')) || [];
+        let customerAccessLog = JSON.parse(localStorage.getItem('customerAccessLog')) || [];
+        let auditLog = JSON.parse(localStorage.getItem('auditLog')) || [];
+        let deviceInfo = { ip: 'N/A', mac: 'N/A' };
+
+        // Get device info (IP via fetch, MAC via navigator if available)
+        async function getDeviceInfo() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                deviceInfo.ip = data.ip;
+            } catch (e) {
+                deviceInfo.ip = 'Unable to determine';
+            }
+        }
+
+        getDeviceInfo();
+
+        function logAuditEvent(action, entityType, entityId, details) {
+            const entry = {
+                timestamp: new Date().toISOString(),
+                user: currentUser?.name || 'Unknown',
+                action,
+                entityType,
+                entityId,
+                details,
+                ip: deviceInfo.ip,
+                mac: deviceInfo.mac
+            };
+            auditLog.push(entry);
+            localStorage.setItem('auditLog', JSON.stringify(auditLog));
+        }
+
+        // Tab Navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!currentUser && btn.dataset.page !== 'login') {
+                    alert('Please login first');
+                    return;
+                }
+                switchPage(btn.dataset.page);
+                btn.classList.add('active');
+                document.querySelectorAll('.nav-btn').forEach(b => {
+                    if (b !== btn) b.classList.remove('active');
+                });
+            });
+        });
+
+        // Login
+        function login() {
+            const name = document.getElementById('loginName').value.trim();
+            const role = document.getElementById('loginRole').value;
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+            currentUser = { name, role };
+            document.getElementById('userInfo').textContent = `${name} (${role})`;
+            switchPage('jobs');
+            document.querySelector('[data-page="jobs"]').click();
+            loadJobs();
+        }
+
+        // Page switching
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if (pageId === 'jobs') {
+                loadJobs();
+                populateCustomerDropdowns();
+                populateTechnicianDropdowns();
+            }
+            if (pageId === 'snapshot') {
+                loadSnapshot();
+            }
+            if (pageId === 'customers') loadCustomers();
+            if (pageId === 'technicians') loadTechnicians();
+            if (pageId === 'completed') loadCompletedJobs();
+            cleanupOldCompletedJobs();
+        }
+
+        function populateCustomerDropdowns() {
+            const selects = [document.getElementById('jobCustomerSelect'), document.getElementById('editJobCustomerId')];
+            selects.forEach(select => {
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">Create new customer profile</option>' + customers.map(cust => 
+                        `<option value="${cust.id}">${cust.name}</option>`
+                    ).join('');
+                    select.value = currentValue;
+                }
+            });
+        }
+
+        function populateTechnicianDropdowns() {
+            const selects = [document.getElementById('jobTechnician'), document.getElementById('editJobTechnician')];
+            selects.forEach(select => {
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">Select technician...</option>' + technicians.map(tech => 
+                        `<option value="${tech.id}">${tech.name}</option>`
+                    ).join('');
+                    select.value = currentValue;
+                }
+            });
+        }
+
+        function prefillCustomerData() {
+            const selectValue = document.getElementById('jobCustomerSelect').value;
+            if (!selectValue) {
+                document.getElementById('jobCustomerName').value = '';
+                document.getElementById('jobAddress').value = '';
+                document.getElementById('jobPhone').value = '';
+                document.getElementById('jobEmail').value = '';
+                document.getElementById('jobLocationGroup').style.display = 'none';
+                return;
+            }
+
+            const cust = customers.find(c => c.id == selectValue);
+            if (cust) {
+                document.getElementById('jobCustomerName').value = cust.name;
+                document.getElementById('jobAddress').value = cust.address;
+                document.getElementById('jobPhone').value = cust.phone;
+                document.getElementById('jobEmail').value = cust.email || '';
+                document.getElementById('jobLocationGroup').style.display = 'block';
+            }
+        }
+
+        function loadSnapshot() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayJobs = jobs.filter(j => j.date === today && j.status !== 'completed').sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+            const todayFormatted = formatDate(today);
+            
+            let todayHtml = '<h4 style="color: #1e3a8a; margin: 1rem 0 0.75rem 0; font-size: 0.95rem;">Today (' + todayFormatted + ')</h4>';
+            if (todayJobs.length === 0) {
+                todayHtml += '<div style="padding: 1rem; text-align: center; color: #999; background: #f9fafb; border-radius: 6px;">No jobs scheduled for today</div>';
+            } else {
+                todayHtml = todayJobs.map(job => `
+                    <div class="job-card" onclick="showJobDetail(${job.id})" style="margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <h3 style="margin-bottom: 0.25rem;">${job.customerName}</h3>
+                                <div class="job-meta">${job.time ? '⏰ ' + job.time : ''}</div>
+                                <div class="job-meta">📍 ${job.address}</div>
+                                <div class="job-meta">${job.description}</div>
+                            </div>
+                            <span class="status-badge status-${job.status}">${job.status.toUpperCase()}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('snapshotTodayList').innerHTML = todayHtml;
+
+            const nextDays = [];
+            for (let i = 1; i <= 7; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() + i);
+                nextDays.push(d.toISOString().split('T')[0]);
+            }
+
+            let weekHtml = '';
+            nextDays.forEach(dateStr => {
+                const dayJobs = jobs.filter(j => j.date === dateStr && j.status !== 'completed').sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+                if (dayJobs.length > 0) {
+                    weekHtml += `<h4 style="color: #1e3a8a; margin: 1rem 0 0.75rem 0; font-size: 0.95rem;">${formatDate(dateStr)}</h4>`;
+                    weekHtml += dayJobs.map(job => `
+                        <div class="job-card" onclick="showJobDetail(${job.id})" style="margin-bottom: 0.5rem; cursor: pointer;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <div style="flex: 1;">
+                                    <h3 style="margin-bottom: 0.25rem; font-size: 0.95rem;">${job.customerName}</h3>
+                                    <div style="font-size: 0.8rem; color: #666;">${job.time ? '⏰ ' + job.time : ''} ${job.description}</div>
+                                </div>
+                                <span class="status-badge status-${job.status}" style="font-size: 0.75rem;">${job.status.toUpperCase()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            });
+
+            if (weekHtml === '') {
+                weekHtml = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No jobs scheduled in the next 7 days</p></div>';
+            }
+            document.getElementById('snapshot7DaysList').innerHTML = weekHtml;
+        }
+
+        // Job Search with fuzzy matching
+        function levenshteinDistance(str1, str2) {
+            const track = Array(str2.length + 1).fill(null).map(() =>
+                Array(str1.length + 1).fill(null));
+            for (let i = 0; i <= str1.length; i += 1) track[0][i] = i;
+            for (let j = 0; j <= str2.length; j += 1) track[j][0] = j;
+            for (let j = 1; j <= str2.length; j += 1) {
+                for (let i = 1; i <= str1.length; i += 1) {
+                    const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                    track[j][i] = Math.min(
+                        track[j][i - 1] + 1,
+                        track[j - 1][i] + 1,
+                        track[j - 1][i - 1] + indicator
+                    );
+                }
+            }
+            return track[str2.length][str1.length];
+        }
+
+        document.getElementById('jobSearch').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const suggestionsDiv = document.getElementById('jobSuggestions');
+
+            if (!query) {
+                suggestionsDiv.classList.remove('show');
+                loadJobs();
+                return;
+            }
+
+            const matches = jobs.map(job => {
+                const nameDistance = levenshteinDistance(query, job.customerName.toLowerCase());
+                const addressDistance = levenshteinDistance(query, (job.address || '').toLowerCase());
+                const phoneDistance = levenshteinDistance(query, (job.phone || '').toLowerCase());
+                const minDistance = Math.min(nameDistance, addressDistance, phoneDistance);
+
+                let matchType = '';
+                if (nameDistance === minDistance) matchType = 'name';
+                else if (addressDistance === minDistance) matchType = 'address';
+                else if (phoneDistance === minDistance) matchType = 'phone';
+
+                return { job, distance: minDistance, matchType };
+            }).filter(m => m.distance <= 5).sort((a, b) => a.distance - b.distance);
+
+            if (matches.length === 0) {
+                suggestionsDiv.innerHTML = '<div class="suggestion-item">No close matches found</div>';
+                suggestionsDiv.classList.add('show');
+                return;
+            }
+
+            suggestionsDiv.innerHTML = matches.slice(0, 5).map(m => `
+                <div class="suggestion-item" onclick="selectJobFromSearch(${m.job.id})">
+                    <strong>${m.job.customerName}</strong><br>
+                    <span style="font-size: 0.8rem; color: #666;">${m.job.address || 'No address'} | ${m.job.phone || 'No phone'}</span>
+                    <span class="match-type">(matched by ${m.matchType})</span>
+                </div>
+            `).join('');
+            suggestionsDiv.classList.add('show');
+        });
+
+        function selectJobFromSearch(jobId) {
+            const job = jobs.find(j => j.id === jobId);
+            if (job) showJobDetail(jobId);
+            document.getElementById('jobSearch').value = '';
+            document.getElementById('jobSuggestions').classList.remove('show');
+        }
+
+        // Load and display jobs
+        function loadJobs() {
+            const listDiv = document.getElementById('jobsList');
+            if (jobs.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h2>No jobs yet</h2>
+                        <p>Create your first job to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listDiv.innerHTML = jobs.map(job => `
+                <div class="job-card" onclick="showJobDetail(${job.id})">
+                    <h3>${job.customerName}</h3>
+                    <div class="job-meta">📍 ${job.address}</div>
+                    <div class="job-meta">📞 ${job.phone}</div>
+                    <div class="job-meta" style="margin-top: 0.5rem;">${job.description}</div>
+                    ${job.jobLocation ? `<div class="job-meta"><strong>📍 Job At:</strong> ${job.jobLocation}</div>` : ''}
+                    ${job.date ? `<div class="job-meta"><strong>📅 Scheduled:</strong> ${formatDate(job.date)}${job.time ? ` at ${job.time}` : ''}</div>` : ''}
+                    <div style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span class="status-badge status-${job.status}">${job.status.toUpperCase()}</span>
+                        ${job.technicianName ? `<span style="font-size: 0.85rem; color: #666;">👤 ${job.technicianName}</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showJobDetail(jobId) {
+            const job = jobs.find(j => j.id === jobId);
+            if (!job) return;
+
+            let photosHtml = '';
+            if (job.photos && job.photos.length > 0) {
+                photosHtml = `
+                    <div class="detail-section">
+                        <h3>📸 Photos</h3>
+                        <div class="photo-preview">
+                            ${job.photos.map(photo => `<div class="photo-item"><img src="${photo}" alt="Job photo"></div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            let workLogHtml = '';
+            if (job.workLog && job.workLog.length > 0) {
+                workLogHtml = `
+                    <div class="detail-section">
+                        <h3>📝 Work Log History</h3>
+                        ${job.workLog.map(log => `
+                            <div style="padding: 0.75rem; background: #f9fafb; border-radius: 6px; margin-bottom: 0.75rem; border-left: 3px solid #1e3a8a;">
+                                <div style="font-weight: 500; color: #1e3a8a; margin-bottom: 0.5rem;">${new Date(log.timestamp).toLocaleDateString()} - ${log.recordedBy}</div>
+                                ${log.time ? `<div class="job-meta"><strong>Time:</strong> ${log.time} hours</div>` : ''}
+                                ${log.materials ? `<div class="job-meta" style="margin-top: 0.5rem; padding: 0.5rem; background: white; border-radius: 4px; border-left: 2px solid #059669;"><strong style="color: #059669;">✓ Materials Used:</strong> <div style="margin-top: 0.25rem; white-space: pre-wrap; color: #374151;">${log.materials}</div></div>` : ''}
+                                ${log.notes ? `<div class="job-meta"><strong>Notes:</strong> ${log.notes}</div>` : ''}
+                                ${log.followUp ? `<div class="job-meta"><strong style="color: #dc2626;">⚠️ Follow-up Required:</strong> ${log.followUpBy || 'Not assigned'}</div>` : ''}
+                                ${log.photos && log.photos.length > 0 ? `
+                                    <div style="margin-top: 0.5rem;">
+                                        <div class="photo-preview">
+                                            ${log.photos.map(photo => `<div class="photo-item"><img src="${photo}" alt="Work photo" style="max-width: 60px;"></div>`).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            let auditHtml = '';
+            const jobAuditLogs = auditLog.filter(log => log.entityId === jobId && log.entityType === 'Job');
+            if (jobAuditLogs.length > 0) {
+                auditHtml = `
+                    <div class="log-section">
+                        <div class="log-header" onclick="toggleLogContent(this)">
+                            <span>📋 Edit History (${jobAuditLogs.length})</span>
+                            <span style="font-size: 0.9rem;">▶</span>
+                        </div>
+                        <div class="log-content">
+                            ${jobAuditLogs.map(log => `
+                                <div class="log-entry">
+                                    <div class="log-entry-time">${new Date(log.timestamp).toLocaleString()}</div>
+                                    <div class="log-entry-user">👤 ${log.user} | ${log.action}</div>
+                                    <div class="log-entry-details">IP: ${log.ip}</div>
+                                    ${log.details ? `<div class="log-entry-details">Changes: ${log.details}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const jobLocationHtml = job.jobLocation ? `<div class="job-location-highlight">📍 Job Location: ${job.jobLocation}</div>` : '';
+
+            document.getElementById('jobDetailContent').innerHTML = `
+                <div class="detail-view">
+                    <h2 style="color: #1e3a8a; margin-bottom: 1rem;">${job.customerName}</h2>
+                    ${jobLocationHtml}
+                    <div class="detail-section">
+                        <div class="detail-row">
+                            <span class="label">Customer Name</span>
+                            <span class="value">${job.customerName}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Home Address</span>
+                            <span class="value">${job.address}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Phone</span>
+                            <span class="value">${job.phone}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Email</span>
+                            <span class="value">${job.email || '-'}</span>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-row">
+                            <span class="label">Description</span>
+                            <span class="value">${job.description}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Status</span>
+                            <span class="value"><span class="status-badge status-${job.status}">${job.status.toUpperCase()}</span></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Scheduled Date</span>
+                            <span class="value">${job.date || '-'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Created</span>
+                            <span class="value">${new Date(job.createdAt).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    ${photosHtml}
+                    ${workLogHtml}
+                    ${auditHtml}
+                    <div style="margin-top: 1.5rem;">
+                        <button class="btn btn-secondary" onclick="openJobWorkLog(${job.id})">Update Progress</button>
+                        <button class="btn btn-secondary" onclick="editJob(${job.id})">Edit Job</button>
+                        <button class="btn btn-danger" onclick="deleteJob(${job.id})">Delete</button>
+                    </div>
+                </div>
+            `;
+            switchPage('job-detail');
+        }
+
+        function goBackToJobs() {
+            switchPage('jobs');
+            document.querySelector('[data-page="jobs"]').classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                if (b.dataset.page !== 'jobs') b.classList.remove('active');
+            });
+        }
+
+        function editJob(jobId) {
+            const job = jobs.find(j => j.id === jobId);
+            if (!job) return;
+
+            document.getElementById('editJobId').value = jobId;
+            document.getElementById('editJobCustomerName').value = job.customerName;
+            document.getElementById('editJobAddress').value = job.address;
+            document.getElementById('editJobPhone').value = job.phone;
+            document.getElementById('editJobEmail').value = job.email || '';
+            document.getElementById('editJobDescription').value = job.description;
+            document.getElementById('editJobStatus').value = job.status;
+            document.getElementById('editJobDate').value = job.date || '';
+            document.getElementById('editJobTime').value = job.time || '';
+            document.getElementById('editJobCustomerId').value = job.customerId || '';
+            document.getElementById('editJobTechnician').value = job.technicianId || '';
+            document.getElementById('editJobLocation').value = job.jobLocation || '';
+            document.getElementById('editJobLocationGroup').style.display = job.customerId ? 'block' : 'none';
+
+            document.getElementById('editJobPhotoPreview').innerHTML = '';
+            if (job.photos && job.photos.length > 0) {
+                document.getElementById('editJobPhotoPreview').innerHTML = job.photos.map((photo, idx) => `
+                    <div class="photo-item">
+                        <img src="${photo}" alt="Job photo">
+                        <button type="button" class="delete-btn" onclick="removeEditPhotoPreview(${idx})">×</button>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('editJobModal').classList.add('show');
+        }
+
+        function openJobWorkLog(jobId) {
+            document.getElementById('workLogJobId').value = jobId;
+            document.getElementById('jobWorkLogForm').reset();
+            document.getElementById('workLogPhotoPreview').innerHTML = '';
+            document.getElementById('followUpByGroup').style.display = 'none';
+            closeJobDetail();
+            document.getElementById('jobWorkLogModal').classList.add('show');
+        }
+
+        function closeJobWorkLogModal() {
+            document.getElementById('jobWorkLogModal').classList.remove('show');
+            document.getElementById('jobWorkLogForm').reset();
+            document.getElementById('workLogPhotoPreview').innerHTML = '';
+        }
+
+        function saveJobWorkLog(event) {
+            event.preventDefault();
+            const jobId = parseInt(document.getElementById('workLogJobId').value);
+            const job = jobs.find(j => j.id === jobId);
+            if (!job) return;
+
+            const materials = document.getElementById('workLogMaterials').value.trim();
+            const time = document.getElementById('workLogTime').value;
+            const notes = document.getElementById('workLogNotes').value.trim();
+            const followUp = document.getElementById('workLogFollowUp').value;
+            const followUpBy = document.getElementById('workLogFollowUpBy').value.trim();
+            const photosInput = document.getElementById('workLogPhotos');
+
+            const photos = [];
+            Array.from(photosInput.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    photos.push(e.target.result);
+                    if (photos.length === photosInput.files.length) {
+                        const workLogEntry = {
+                            id: Date.now(),
+                            materials,
+                            time: time ? parseFloat(time) : 0,
+                            notes,
+                            photos,
+                            followUp: followUp === 'yes',
+                            followUpBy,
+                            timestamp: new Date().toISOString(),
+                            recordedBy: currentUser.name
+                        };
+                        if (!job.workLog) job.workLog = [];
+                        job.workLog.push(workLogEntry);
+                        localStorage.setItem('jobs', JSON.stringify(jobs));
+                        closeJobWorkLogModal();
+                        showJobDetail(jobId);
+                        alert('Work log saved!');
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+
+            if (photosInput.files.length === 0) {
+                const workLogEntry = {
+                    id: Date.now(),
+                    materials,
+                    time: time ? parseFloat(time) : 0,
+                    notes,
+                    photos: [],
+                    followUp: followUp === 'yes',
+                    followUpBy,
+                    timestamp: new Date().toISOString(),
+                    recordedBy: currentUser.name
+                };
+                if (!job.workLog) job.workLog = [];
+                job.workLog.push(workLogEntry);
+                localStorage.setItem('jobs', JSON.stringify(jobs));
+                closeJobWorkLogModal();
+                showJobDetail(jobId);
+                alert('Work log saved!');
+            }
+        }
+
+        function closeEditJobModal() {
+            document.getElementById('editJobModal').classList.remove('show');
+            document.getElementById('editJobForm').reset();
+            document.getElementById('editJobPhotoPreview').innerHTML = '';
+        }
+
+        function updateJob(event) {
+            event.preventDefault();
+            const jobId = parseInt(document.getElementById('editJobId').value);
+            const job = jobs.find(j => j.id === jobId);
+            if (!job) return;
+
+            const oldValues = { ...job };
+            const technicianId = document.getElementById('editJobTechnician').value;
+            const getTechnicianName = () => {
+                if (!technicianId) return '';
+                const tech = technicians.find(t => t.id == technicianId);
+                return tech ? tech.name : '';
+            };
+
+            job.customerName = document.getElementById('editJobCustomerName').value.trim();
+            job.address = document.getElementById('editJobAddress').value.trim();
+            job.phone = document.getElementById('editJobPhone').value.trim();
+            job.email = document.getElementById('editJobEmail').value.trim();
+            job.description = document.getElementById('editJobDescription').value.trim();
+            job.status = document.getElementById('editJobStatus').value;
+            job.date = document.getElementById('editJobDate').value;
+            job.time = document.getElementById('editJobTime').value;
+            job.jobLocation = document.getElementById('editJobLocation').value.trim();
+            job.technicianId = technicianId || null;
+            job.technicianName = getTechnicianName();
+
+            const changes = [];
+            if (oldValues.customerName !== job.customerName) changes.push(`Name: ${oldValues.customerName} → ${job.customerName}`);
+            if (oldValues.address !== job.address) changes.push(`Address: ${oldValues.address} → ${job.address}`);
+            if (oldValues.status !== job.status) changes.push(`Status: ${oldValues.status} → ${job.status}`);
+            
+            if (job.status === 'completed' && oldValues.status !== 'completed') {
+                job.completedAt = new Date().toISOString();
+            }
+
+            const photosInput = document.getElementById('editJobPhotos');
+            const existingPhotos = Array.from(document.getElementById('editJobPhotoPreview').querySelectorAll('img')).map(img => img.src);
+
+            if (photosInput.files.length > 0) {
+                const newPhotos = [];
+                Array.from(photosInput.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        newPhotos.push(e.target.result);
+                        if (newPhotos.length === photosInput.files.length) {
+                            job.photos = existingPhotos.concat(newPhotos);
+                            localStorage.setItem('jobs', JSON.stringify(jobs));
+                            logAuditEvent('UPDATE', 'Job', jobId, changes.join('; '));
+                            alert('Job updated successfully!');
+                            closeEditJobModal();
+                            showJobDetail(jobId);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                job.photos = existingPhotos;
+                localStorage.setItem('jobs', JSON.stringify(jobs));
+                logAuditEvent('UPDATE', 'Job', jobId, changes.join('; '));
+                alert('Job updated successfully!');
+                closeEditJobModal();
+                showJobDetail(jobId);
+            }
+        }
+
+        function removeEditPhotoPreview(idx) {
+            const previewDiv = document.getElementById('editJobPhotoPreview');
+            const imgs = previewDiv.querySelectorAll('img');
+            imgs[idx].parentElement.remove();
+        }
+
+        function deleteJob(jobId) {
+            if (confirm('Are you sure you want to delete this job?')) {
+                jobs = jobs.filter(j => j.id !== jobId);
+                localStorage.setItem('jobs', JSON.stringify(jobs));
+                closeJobDetail();
+                loadJobs();
+            }
+        }
+
+        // Save new job
+        function saveJob(event) {
+            event.preventDefault();
+            const customerId = document.getElementById('jobCustomerSelect').value;
+            const customerName = document.getElementById('jobCustomerName').value.trim();
+            const address = document.getElementById('jobAddress').value.trim();
+            const phone = document.getElementById('jobPhone').value.trim();
+            const email = document.getElementById('jobEmail').value.trim();
+            const description = document.getElementById('jobDescription').value.trim();
+            const status = document.getElementById('jobStatus').value;
+            const date = document.getElementById('jobDate').value;
+            const time = document.getElementById('jobTime').value;
+            const jobLocation = document.getElementById('jobLocation').value.trim();
+            const technicianId = document.getElementById('jobTechnician').value;
+            const photosInput = document.getElementById('jobPhotos');
+
+            if (!customerName || !address || !phone || !description) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // If creating new customer, save it first
+            if (!customerId) {
+                const newCustomer = {
+                    id: Date.now(),
+                    name: customerName,
+                    address: address,
+                    phone: phone,
+                    email: email,
+                    notes: '',
+                    photos: [],
+                    createdAt: new Date().toISOString()
+                };
+                customers.push(newCustomer);
+                localStorage.setItem('customers', JSON.stringify(customers));
+            }
+
+            const getTechnicianName = () => {
+                if (!technicianId) return '';
+                const tech = technicians.find(t => t.id == technicianId);
+                return tech ? tech.name : '';
+            };
+
+            const photos = [];
+            Array.from(photosInput.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    photos.push(e.target.result);
+                    if (photos.length === photosInput.files.length) {
+                        const newJob = {
+                            id: Date.now(),
+                            customerId: customerId || null,
+                            customerName,
+                            address,
+                            phone,
+                            email,
+                            description,
+                            status,
+                            date,
+                            time,
+                            jobLocation,
+                            technicianId: technicianId || null,
+                            technicianName: getTechnicianName(),
+                            photos,
+                            workLog: [],
+                            createdAt: new Date().toISOString()
+                        };
+                        jobs.push(newJob);
+                        localStorage.setItem('jobs', JSON.stringify(jobs));
+                        logAuditEvent('CREATE', 'Job', newJob.id, `Created job: ${customerName}`);
+                        alert('Job created successfully!');
+                        clearJobForm();
+                        switchPage('jobs');
+                        loadJobs();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+
+            if (photosInput.files.length === 0) {
+                const newJob = {
+                    id: Date.now(),
+                    customerId: customerId || null,
+                    customerName,
+                    address,
+                    phone,
+                    email,
+                    description,
+                    status,
+                    date,
+                    time,
+                    jobLocation,
+                    technicianId: technicianId || null,
+                    technicianName: getTechnicianName(),
+                    photos: [],
+                    workLog: [],
+                    createdAt: new Date().toISOString()
+                };
+                jobs.push(newJob);
+                localStorage.setItem('jobs', JSON.stringify(jobs));
+                logAuditEvent('CREATE', 'Job', newJob.id, `Created job: ${customerName}`);
+                alert('Job created successfully!');
+                clearJobForm();
+                switchPage('jobs');
+                loadJobs();
+            }
+        }
+
+        // Customer management
+        function switchToNewCustomer() {
+            document.getElementById('newCustomerForm').reset();
+            document.getElementById('custPhotoPreview').innerHTML = '';
+            document.getElementById('newCustomerModal').classList.add('show');
+        }
+
+        function closeNewCustomerModal() {
+            document.getElementById('newCustomerModal').classList.remove('show');
+            document.getElementById('newCustomerForm').reset();
+            document.getElementById('custPhotoPreview').innerHTML = '';
+        }
+
+        function saveCustomer(event) {
+            event.preventDefault();
+            const name = document.getElementById('custName').value.trim();
+            const address = document.getElementById('custAddress').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const email = document.getElementById('custEmail').value.trim();
+            const notes = document.getElementById('custNotes').value.trim();
+            const photosInput = document.getElementById('custPhotos');
+
+            if (!name || !address || !phone) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const photos = [];
+            Array.from(photosInput.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    photos.push(e.target.result);
+                    if (photos.length === photosInput.files.length) {
+                        const newCustomer = {
+                            id: Date.now(),
+                            name,
+                            address,
+                            phone,
+                            email,
+                            notes,
+                            photos,
+                            createdAt: new Date().toISOString()
+                        };
+                        customers.push(newCustomer);
+                        localStorage.setItem('customers', JSON.stringify(customers));
+                        alert('Customer saved successfully!');
+                        closeNewCustomerModal();
+                        loadCustomers();
+                        populateCustomerDropdowns();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+
+            if (photosInput.files.length === 0) {
+                const newCustomer = {
+                    id: Date.now(),
+                    name,
+                    address,
+                    phone,
+                    email,
+                    notes,
+                    photos: [],
+                    createdAt: new Date().toISOString()
+                };
+                customers.push(newCustomer);
+                localStorage.setItem('customers', JSON.stringify(customers));
+                alert('Customer saved successfully!');
+                closeNewCustomerModal();
+                loadCustomers();
+                populateCustomerDropdowns();
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr + 'T00:00:00');
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = String(d.getFullYear()).slice(-2);
+            return `${day}/${month}/${year}`;
+        }
+
+        function loadCustomers() {
+            const listDiv = document.getElementById('customersList');
+            
+            // Sort by access date (most recent first)
+            const sortedCustomers = customers.slice().sort((a, b) => {
+                const aAccess = customerAccessLog.find(log => log.customerId === a.id)?.timestamp || a.createdAt;
+                const bAccess = customerAccessLog.find(log => log.customerId === b.id)?.timestamp || b.createdAt;
+                return new Date(bAccess) - new Date(aAccess);
+            });
+
+            if (sortedCustomers.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <h2>No customers yet</h2>
+                        <p>Create your first customer to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listDiv.innerHTML = sortedCustomers.map(cust => {
+                const custJobs = jobs.filter(j => j.customerName === cust.name);
+                const activeJobs = custJobs.filter(j => j.status !== 'completed');
+                return `
+                    <div class="job-card" onclick="logCustomerAccess(${cust.id}); showExpandedCustomerDetail(${cust.id})">
+                        <h3>${cust.name}</h3>
+                        <div class="job-meta">📍 ${cust.address}</div>
+                        <div class="job-meta">📞 ${cust.phone}</div>
+                        ${cust.notes ? `<div class="job-meta" style="margin-top: 0.5rem; padding: 0.5rem; background: #fef3c7; border-radius: 4px; font-size: 0.8rem;"><strong>🔑 Access Notes:</strong> ${cust.notes}</div>` : ''}
+                        <div class="job-meta" style="margin-top: 0.5rem; color: #1e3a8a;">Active Jobs: ${activeJobs.length} | Total: ${custJobs.length}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchToNewTechnician() {
+            document.getElementById('newTechnicianForm').reset();
+            document.getElementById('newTechnicianModal').classList.add('show');
+        }
+
+        function closeNewTechnicianModal() {
+            document.getElementById('newTechnicianModal').classList.remove('show');
+            document.getElementById('newTechnicianForm').reset();
+        }
+
+        function saveTechnician(event) {
+            event.preventDefault();
+            const name = document.getElementById('techName').value.trim();
+            const phone = document.getElementById('techPhone').value.trim();
+            const email = document.getElementById('techEmail').value.trim();
+            const emergencyName = document.getElementById('techEmergencyName').value.trim();
+            const emergencyPhone = document.getElementById('techEmergencyPhone').value.trim();
+            const specialization = document.getElementById('techSpecialization').value.trim();
+
+            if (!name || !phone) {
+                alert('Please fill in required fields');
+                return;
+            }
+
+            const newTechnician = {
+                id: Date.now(),
+                name,
+                phone,
+                email,
+                emergencyName,
+                emergencyPhone,
+                specialization,
+                createdAt: new Date().toISOString()
+            };
+            technicians.push(newTechnician);
+            localStorage.setItem('technicians', JSON.stringify(technicians));
+            alert('Technician saved successfully!');
+            closeNewTechnicianModal();
+            loadTechnicians();
+            populateTechnicianDropdowns();
+        }
+
+        function loadTechnicians() {
+            const listDiv = document.getElementById('techniciansList');
+            if (technicians.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👨‍🔧</div>
+                        <h2>No technicians yet</h2>
+                        <p>Add your first technician to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listDiv.innerHTML = technicians.map(tech => {
+                const techJobs = jobs.filter(j => j.technicianId == tech.id && j.status !== 'completed');
+                return `
+                    <div class="job-card">
+                        <h3>${tech.name}</h3>
+                        <div class="job-meta">📞 ${tech.phone}</div>
+                        ${tech.email ? `<div class="job-meta">📧 ${tech.email}</div>` : ''}
+                        ${tech.specialization ? `<div class="job-meta"><strong>Skills:</strong> ${tech.specialization}</div>` : ''}
+                        <div style="margin-top: 0.75rem; padding: 0.75rem; background: #f0f4ff; border-radius: 4px; font-size: 0.85rem;">
+                            <div><strong>Emergency Contact:</strong></div>
+                            <div>${tech.emergencyName || '-'} ${tech.emergencyPhone ? '(' + tech.emergencyPhone + ')' : ''}</div>
+                        </div>
+                        <div class="job-meta" style="margin-top: 0.75rem; color: #1e3a8a;">Active Jobs: ${techJobs.length}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function logCustomerAccess(customerId) {
+            customerAccessLog = customerAccessLog.filter(log => log.customerId !== customerId);
+            customerAccessLog.unshift({
+                customerId,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('customerAccessLog', JSON.stringify(customerAccessLog));
+        }
+
+        function showExpandedCustomerDetail(customerId) {
+            const cust = customers.find(c => c.id === customerId);
+            if (!cust) return;
+
+            const custJobs = jobs.filter(j => j.customerName === cust.name);
+            const upcomingJobs = custJobs.filter(j => j.status !== 'completed').sort((a, b) => {
+                if (!a.date && !b.date) return 0;
+                if (!a.date) return 1;
+                if (!b.date) return -1;
+                const dateCompare = a.date.localeCompare(b.date);
+                if (dateCompare !== 0) return dateCompare;
+                return (a.time || '').localeCompare(b.time || '');
+            });
+            const completedJobs = custJobs.filter(j => j.status === 'completed').sort((a, b) => 
+                new Date(b.completedAt) - new Date(a.completedAt)
+            );
+
+            let photosHtml = '';
+            if (cust.photos && cust.photos.length > 0) {
+                photosHtml = `
+                    <div class="detail-section">
+                        <h3>📸 Photos</h3>
+                        <div class="photo-preview">
+                            ${cust.photos.map(photo => `<div class="photo-item"><img src="${photo}" alt="Customer photo"></div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            let notesHtml = '';
+            if (cust.notes) {
+                notesHtml = `
+                    <div class="detail-section" style="padding: 0.75rem; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; margin-bottom: 1.5rem;">
+                        <h3 style="color: #92400e; border: none; margin-bottom: 0.5rem;">🔑 Access Notes</h3>
+                        <div style="color: #92400e; white-space: pre-wrap; font-size: 0.9rem;">${cust.notes}</div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('jobDetailContent').innerHTML = `
+                <div class="detail-view">
+                    <div class="detail-section">
+                        <div class="detail-row">
+                            <span class="label">Customer Name</span>
+                            <span class="value">${cust.name}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Address</span>
+                            <span class="value">${cust.address}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Phone</span>
+                            <span class="value">${cust.phone}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Email</span>
+                            <span class="value">${cust.email || '-'}</span>
+                        </div>
+                    </div>
+                    ${notesHtml}
+                    ${photosHtml}
+                    <div class="detail-section">
+                        <h3>📅 Upcoming Jobs (${upcomingJobs.length})</h3>
+                        ${upcomingJobs.length === 0 ? '<div class="job-meta">No upcoming jobs for this customer</div>' : ''}
+                        ${upcomingJobs.map(job => `
+                            <div style="padding: 0.75rem; background: #f9fafb; border-radius: 6px; margin-bottom: 0.5rem; cursor: pointer; border-left: 3px solid #1e3a8a;" onclick="showJobDetail(${job.id})">
+                                <div style="font-weight: 500; color: #1e3a8a; margin-bottom: 0.25rem;">${job.description}</div>
+                                <div style="font-size: 0.85rem; color: #666;">
+                                    ${job.date ? `📅 ${formatDate(job.date)}${job.time ? ` at ${job.time}` : ''}` : 'No date set'} 
+                                    ${job.technicianName ? `| 👤 ${job.technicianName}` : ''}
+                                </div>
+                                <span class="status-badge status-${job.status}" style="margin-top: 0.5rem; display: inline-block;">${job.status.toUpperCase()}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="detail-section">
+                        <h3>✅ Completed Jobs (${completedJobs.length})</h3>
+                        ${completedJobs.length === 0 ? '<div class="job-meta">No completed jobs for this customer</div>' : ''}
+                        ${completedJobs.map(job => `
+                            <div style="padding: 0.75rem; background: #f0fdf4; border-radius: 6px; margin-bottom: 0.5rem; cursor: pointer; border-left: 3px solid #059669;" onclick="showJobDetail(${job.id})">
+                                <div style="font-weight: 500; color: #065f46; margin-bottom: 0.25rem;">${job.description}</div>
+                                <div style="font-size: 0.85rem; color: #666;">Completed ${formatDate(job.completedAt.split('T')[0])}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            switchPage('job-detail');
+        }
+
+        function showCustomerDetail(customerId) {
+            showExpandedCustomerDetail(customerId);
+        }
+
+        // Jobs by date
+        function loadJobsByDate() {
+            const datePicker = document.getElementById('todayDatePicker');
+            const selectedDate = datePicker.value || new Date().toISOString().split('T')[0];
+            const selectedDateObj = new Date(selectedDate);
+            document.getElementById('todayTitle').textContent = `Jobs for ${selectedDateObj.toLocaleDateString()}`;
+            
+            const jobsForDate = jobs.filter(j => {
+                if (!j.date) return false;
+                return j.date === selectedDate && j.status !== 'completed';
+            });
+
+            const listDiv = document.getElementById('todayJobsList');
+            if (jobsForDate.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <h2>No jobs scheduled for this date</h2>
+                        <p>Select another date or create a job</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listDiv.innerHTML = jobsForDate.map(job => `
+                <div class="job-card" onclick="showJobDetail(${job.id})">
+                    <h3>${job.customerName}</h3>
+                    <div class="job-meta">📍 ${job.address}</div>
+                    <div class="job-meta">📞 ${job.phone}</div>
+                    <div class="job-meta" style="margin-top: 0.5rem;">${job.description}</div>
+                    ${job.jobLocation ? `<div class="job-meta"><strong>📍 Job At:</strong> ${job.jobLocation}</div>` : ''}
+                    <span class="status-badge status-${job.status}">${job.status.toUpperCase()}</span>
+                </div>
+            `).join('');
+        }
+
+        // Completed jobs
+        function loadCompletedJobs() {
+            const fourteenDaysAgo = new Date();
+            fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+            const completedJobs = jobs.filter(j => {
+                if (j.status !== 'completed' || !j.completedAt) return false;
+                const completedDate = new Date(j.completedAt);
+                return completedDate >= fourteenDaysAgo;
+            }).sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+
+            const listDiv = document.getElementById('completedJobsList');
+            if (completedJobs.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✅</div>
+                        <h2>No recently completed jobs</h2>
+                        <p>Jobs appear here for 14 days after completion</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listDiv.innerHTML = completedJobs.map(job => `
+                <div class="job-card" onclick="showJobDetail(${job.id})">
+                    <h3>${job.customerName}</h3>
+                    <div class="job-meta">📍 ${job.address}</div>
+                    <div class="job-meta">📞 ${job.phone}</div>
+                    <div class="job-meta" style="margin-top: 0.5rem;">${job.description}</div>
+                    <div class="job-meta"><strong>✅ Completed:</strong> ${formatDate(job.completedAt.split('T')[0])}</div>
+                    ${job.jobLocation ? `<div class="job-meta"><strong>📍 Job At:</strong> ${job.jobLocation}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Cleanup old completed jobs (over 14 days)
+        function cleanupOldCompletedJobs() {
+            const fourteenDaysAgo = new Date();
+            fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+            const originalLength = jobs.length;
+            jobs = jobs.filter(j => {
+                if (j.status !== 'completed' || !j.completedAt) return true;
+                const completedDate = new Date(j.completedAt);
+                return completedDate >= fourteenDaysAgo;
+            });
+
+            if (jobs.length < originalLength) {
+                localStorage.setItem('jobs', JSON.stringify(jobs));
+            }
+        }
+
+        function clearJobForm() {
+            document.getElementById('newJobForm').reset();
+            document.getElementById('jobPhotoPreview').innerHTML = '';
+        }
+
+        // Photo preview
+        document.getElementById('jobPhotos').addEventListener('change', () => {
+            const previewDiv = document.getElementById('jobPhotoPreview');
+            previewDiv.innerHTML = '';
+            Array.from(document.getElementById('jobPhotos').files).forEach((file, idx) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewDiv.innerHTML += `
+                        <div class="photo-item">
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="delete-btn" onclick="removePhotoPreview(${idx})">×</button>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function removePhotoPreview(idx) {
+            const input = document.getElementById('jobPhotos');
+            const dt = new DataTransfer();
+            Array.from(input.files).forEach((file, i) => {
+                if (i !== idx) dt.items.add(file);
+            });
+            input.files = dt.files;
+            document.getElementById('jobPhotos').dispatchEvent(new Event('change'));
+        }
+
+        document.getElementById('custPhotos').addEventListener('change', () => {
+            const previewDiv = document.getElementById('custPhotoPreview');
+            previewDiv.innerHTML = '';
+            Array.from(document.getElementById('custPhotos').files).forEach((file, idx) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewDiv.innerHTML += `
+                        <div class="photo-item">
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="delete-btn" onclick="removeCustPhotoPreview(${idx})">×</button>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function removeCustPhotoPreview(idx) {
+            const input = document.getElementById('custPhotos');
+            const dt = new DataTransfer();
+            Array.from(input.files).forEach((file, i) => {
+                if (i !== idx) dt.items.add(file);
+            });
+            input.files = dt.files;
+            document.getElementById('custPhotos').dispatchEvent(new Event('change'));
+        }
+
+        document.getElementById('editJobPhotos').addEventListener('change', () => {
+            const previewDiv = document.getElementById('editJobPhotoPreview');
+            const existingPhotos = previewDiv.querySelectorAll('img');
+            Array.from(document.getElementById('editJobPhotos').files).forEach((file, idx) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewDiv.innerHTML += `
+                        <div class="photo-item">
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="delete-btn" onclick="removeNewEditPhotoPreview(this)">×</button>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function removeNewEditPhotoPreview(btn) {
+            btn.parentElement.remove();
+        }
+
+        function toggleLogContent(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('show');
+            const arrow = header.querySelector('span:last-child');
+            arrow.style.transform = content.classList.contains('show') ? 'rotate(90deg)' : 'rotate(0deg)';
+        }
+
+        document.getElementById('workLogFollowUp').addEventListener('change', (e) => {
+            const followUpByGroup = document.getElementById('followUpByGroup');
+            followUpByGroup.style.display = e.target.value === 'yes' ? 'block' : 'none';
+        });
+
+        document.getElementById('workLogPhotos').addEventListener('change', () => {
+            const previewDiv = document.getElementById('workLogPhotoPreview');
+            previewDiv.innerHTML = '';
+            Array.from(document.getElementById('workLogPhotos').files).forEach((file, idx) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewDiv.innerHTML += `
+                        <div class="photo-item">
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="delete-btn" onclick="removeWorkLogPhotoPreview(${idx})">×</button>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function removeWorkLogPhotoPreview(idx) {
+            const input = document.getElementById('workLogPhotos');
+            const dt = new DataTransfer();
+            Array.from(input.files).forEach((file, i) => {
+                if (i !== idx) dt.items.add(file);
+            });
+            input.files = dt.files;
+            document.getElementById('workLogPhotos').dispatchEvent(new Event('change'));
+        }
+    </script>
+</body>
+</html>
